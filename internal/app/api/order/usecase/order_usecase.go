@@ -9,19 +9,20 @@ import (
 
 	"github.com/kodersky/golang-api-example/internal/app/api/models"
 	"github.com/kodersky/golang-api-example/internal/app/api/order"
-	"github.com/spf13/viper"
 )
 
 type orderUsecase struct {
 	orderRepo      order.Repository
 	contextTimeout time.Duration
+	GMClient       *order.Client
 }
 
 // NewOrderUsecase will create new an orderUsecase object representation of order.Usecase interface
-func NewOrderUsecase(o order.Repository, timeout time.Duration) order.Usecase {
+func NewOrderUsecase(o order.Repository, timeout time.Duration, gmClient *order.Client) order.Usecase {
 	return &orderUsecase{
 		orderRepo:      o,
 		contextTimeout: timeout,
+		GMClient:       gmClient,
 	}
 }
 
@@ -72,31 +73,32 @@ func (o *orderUsecase) Update(c context.Context, or *models.Order) error {
 }
 
 func (o *orderUsecase) Store(c context.Context, m *models.Order) error {
-	apiKey := viper.GetString(`gmaps_apikey`)
 
 	ctx, cancel := context.WithTimeout(c, o.contextTimeout)
 	defer cancel()
 
 	c1 := make(chan *maps.DistanceMatrixResponse, 1)
-
-	gm, err := maps.NewClient(maps.WithAPIKey(apiKey))
-	if err != nil {
-		return models.ErrInternalServerError
-	}
+	c2 := make(chan error)
 
 	r := &maps.DistanceMatrixRequest{
 		Origins:      []string{fmt.Sprintf("%.8f,%.8f", m.StartLat, m.StartLong)},
 		Destinations: []string{fmt.Sprintf("%.8f,%.8f", m.EndLat, m.EndLong)},
+		Units:        maps.UnitsMetric,
 	}
 
 	go func() {
-		// TODO: This err should be handled ;)
-		route, _ := gm.DistanceMatrix(context.Background(), r)
+		route, err := o.GMClient.Client.DistanceMatrix(context.Background(), r)
+		if err != nil {
+			c2 <- err
+			return
+		}
 
 		c1 <- route
 	}()
 
 	select {
+	case <-c2:
+		return models.ErrInternalServerError
 	case res := <-c1:
 		if res == nil {
 			// Probably bad api key
@@ -110,7 +112,7 @@ func (o *orderUsecase) Store(c context.Context, m *models.Order) error {
 		return models.ErrTimeout
 	}
 
-	err = o.orderRepo.Store(ctx, m)
+	err := o.orderRepo.Store(ctx, m)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/kodersky/golang-api-example/internal/app/api/order"
+	"googlemaps.github.io/maps"
 	"log"
 	"net/url"
 	"os"
@@ -63,7 +65,15 @@ func main() {
 
 	timeoutContext := time.Duration(viper.GetInt("timeout")) * time.Second
 
-	ou := _orderUcase.NewOrderUsecase(or, timeoutContext)
+	gm, err := maps.NewClient(maps.WithAPIKey(viper.GetString(`gmaps_apikey`)))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c := newClient(gm)
+
+	ou := _orderUcase.NewOrderUsecase(or, timeoutContext, c)
 
 	e := echo.New()
 	middL := middleware.InitMiddleware()
@@ -72,4 +82,10 @@ func main() {
 	_orderHttpDeliver.NewOrderHandler(e, ou)
 
 	log.Fatal(e.Start(":8081"))
+}
+
+func newClient(gm order.GoogleMapClient) *order.Client {
+	return &order.Client{
+		Client: gm,
+	}
 }

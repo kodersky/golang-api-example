@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-
 	"github.com/kodersky/golang-api-example/internal/app/api/models"
 )
 
@@ -11,5 +10,5 @@ type Usecase interface {
 	Fetch(ctx context.Context, limit int, offset int) ([]*models.Order, error)
 	GetByID(ctx context.Context, id string) (*models.Order, error)
 	Update(ctx context.Context, or *models.Order) error
-	Store(context.Context, *models.Order) error
+	Store(ctx context.Context, or *models.Order) error
 }

@@ -78,7 +78,7 @@ func (o *OrderHandler) Update(c echo.Context) error {
 	}
 
 	if s.Status != "TAKEN" {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
 	or, err := o.OUsecase.GetByID(ctx, id)
@@ -105,6 +105,8 @@ func (o *OrderHandler) Store(c echo.Context) error {
 	var or models.Order
 	var orderRequest helpers.OrderStruct
 
+	//apiKey := viper.GetString(`gmaps_apikey`)
+
 	err := c.Bind(&orderRequest)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
@@ -123,6 +125,12 @@ func (o *OrderHandler) Store(c echo.Context) error {
 	or.StartLong, _ = strconv.ParseFloat(orderRequest.Origin[1], 64)
 	or.EndLat, _ = strconv.ParseFloat(orderRequest.Destination[0], 64)
 	or.EndLong, _ = strconv.ParseFloat(orderRequest.Destination[1], 64)
+
+	//gm, _ := maps.NewClient(maps.WithAPIKey(apiKey))
+	//if err != nil {
+	//	return models.ErrInternalServerError
+	//}
+	//
 
 	err = o.OUsecase.Store(ctx, &or)
 
