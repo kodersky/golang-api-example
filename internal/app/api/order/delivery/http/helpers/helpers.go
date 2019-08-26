@@ -2,32 +2,13 @@ package helpers
 
 import (
 	"github.com/kodersky/golang-api-example/internal/app/api/models"
+	h "github.com/kodersky/golang-api-example/internal/app/api/order/delivery/http"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"strconv"
 )
 
-// ResponseError represent the response error struct
-type ResponseError struct {
-	Message string `json:"error"`
-}
-
-type Pagination struct {
-	Page  int
-	Limit int
-}
-
-type OrderStruct struct {
-	Origin      [2]string `validate:"geo"`
-	Destination [2]string `validate:"geo"`
-}
-
-type geoCoordinates struct {
-	Lat string `validate:"latitude"`
-	Lng string `validate:"longitude"`
-}
-
-func IsOrderReqValid(m *OrderStruct) (bool, error) {
+func IsOrderReqValid(m *h.OrderStruct) (bool, error) {
 	validate := validator.New()
 	err := validate.RegisterValidation("geo", validateGeo)
 	if err != nil {
@@ -66,18 +47,23 @@ func GetStatusCode(err error) int {
 func validateGeo(fl validator.FieldLevel) bool {
 	co, ok := fl.Field().Interface().([2]string)
 
+	type geoCoordinates struct {
+		Lat string `validate:"latitude"`
+		Lng string `validate:"longitude"`
+	}
+
 	if !ok {
 		return false
 	}
 
-	geoCoordinates := geoCoordinates{
+	gc := geoCoordinates{
 		Lat: co[0],
 		Lng: co[1],
 	}
 
 	validate := validator.New()
 
-	err := validate.Struct(geoCoordinates)
+	err := validate.Struct(gc)
 	if err != nil {
 		return false
 	}
@@ -85,7 +71,7 @@ func validateGeo(fl validator.FieldLevel) bool {
 	return true
 }
 
-func IsPaginationValid(pagination *Pagination, pageS string, limitS string) error {
+func IsPaginationValid(pagination *h.Pagination, pageS string, limitS string) error {
 	if pageS != "" {
 		p, err := strconv.Atoi(pageS)
 		if err != nil || p <= 0 {

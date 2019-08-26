@@ -19,6 +19,20 @@ type OrderHandler struct {
 	OUsecase order.Usecase
 }
 
+type ResponseError struct {
+	Message string `json:"error"`
+}
+
+type Pagination struct {
+	Page  int
+	Limit int
+}
+
+type OrderStruct struct {
+	Origin      [2]string `validate:"geo"`
+	Destination [2]string `validate:"geo"`
+}
+
 // NewOrderHandler will initialize the orders/ resources endpoint
 func NewOrderHandler(e *echo.Echo, ou order.Usecase) {
 	handler := &OrderHandler{
@@ -32,13 +46,13 @@ func NewOrderHandler(e *echo.Echo, ou order.Usecase) {
 // FetchOrder will fetch the orders based on given params
 func (o *OrderHandler) FetchOrder(c echo.Context) error {
 
-	var pagination helpers.Pagination
+	var pagination Pagination
 
 	// We could use also Validator.v9 for this
 	err := helpers.IsPaginationValid(&pagination, c.QueryParam("page"), c.QueryParam("limit"))
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: err.Error()})
+		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	offset := pagination.Limit * (pagination.Page - 1)
@@ -51,7 +65,7 @@ func (o *OrderHandler) FetchOrder(c echo.Context) error {
 	listOr, err := o.OUsecase.Fetch(ctx, pagination.Limit, offset)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: err.Error()})
+		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, listOr)
@@ -74,23 +88,23 @@ func (o *OrderHandler) Update(c echo.Context) error {
 
 	err := c.Bind(&s)
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
 	if s.Status != "TAKEN" {
-		return c.JSON(http.StatusUnprocessableEntity, helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
 	or, err := o.OUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: err.Error()})
+		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	err = o.OUsecase.Update(ctx, or)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: err.Error()})
+		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	logrus.Infof(fmt.Sprintf("Order %s status changed to %s", or.UUID, or.Status))
@@ -103,17 +117,15 @@ func (o *OrderHandler) Update(c echo.Context) error {
 // Store will store the order by given request body
 func (o *OrderHandler) Store(c echo.Context) error {
 	var or models.Order
-	var orderRequest helpers.OrderStruct
-
-	//apiKey := viper.GetString(`gmaps_apikey`)
+	var orderRequest OrderStruct
 
 	err := c.Bind(&orderRequest)
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
 	if ok, _ := helpers.IsOrderReqValid(&orderRequest); !ok {
-		return c.JSON(http.StatusUnprocessableEntity, helpers.ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -126,16 +138,10 @@ func (o *OrderHandler) Store(c echo.Context) error {
 	or.EndLat, _ = strconv.ParseFloat(orderRequest.Destination[0], 64)
 	or.EndLong, _ = strconv.ParseFloat(orderRequest.Destination[1], 64)
 
-	//gm, _ := maps.NewClient(maps.WithAPIKey(apiKey))
-	//if err != nil {
-	//	return models.ErrInternalServerError
-	//}
-	//
-
 	err = o.OUsecase.Store(ctx, &or)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), helpers.ResponseError{Message: err.Error()})
+		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, or)

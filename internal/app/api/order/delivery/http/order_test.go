@@ -4,19 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/google/uuid"
-	//"encoding/json"
 	"net/http"
 	"net/http/httptest"
 
-	"strings"
-	"testing"
-	//"time"
-
-	//"github.com/bxcodec/faker"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"strings"
+	"testing"
 
 	"github.com/kodersky/golang-api-example/internal/app/api/models"
 	orderHttp "github.com/kodersky/golang-api-example/internal/app/api/order/delivery/http"
