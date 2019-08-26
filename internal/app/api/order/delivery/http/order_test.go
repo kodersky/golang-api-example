@@ -105,7 +105,6 @@ func TestFetchError(t *testing.T) {
 
 // TestStore checks if response and json format are correct for newly added Order
 func TestStore(t *testing.T) {
-	//var googleClient *fakeClient
 	mockOrder := struct {
 		Origin      [2]string `json:"origin"`
 		Destination [2]string `json:"destination"`
@@ -114,10 +113,9 @@ func TestStore(t *testing.T) {
 		Destination: [2]string{"13.754179", "100.630377"},
 	}
 
-	tempMockOrder := mockOrder
 	mockUCase := new(mocks.Usecase)
 
-	j, err := json.Marshal(tempMockOrder)
+	j, err := json.Marshal(mockOrder)
 	assert.NoError(t, err)
 
 	mockUCase.On("Store", mock.Anything, mock.AnythingOfType("*models.Order")).Return(nil)
@@ -139,6 +137,43 @@ func TestStore(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.JSONEq(t, `{"id":"00000000-0000-0000-0000-000000000000","status":"UNASSIGNED","distance":0}`, rec.Body.String())
+	mockUCase.AssertExpectations(t)
+}
+
+// TestStoreError checks if gps lat long are valid
+func TestStoreError(t *testing.T) {
+	mockOrder := struct {
+		Origin      [2]string `json:"origin"`
+		Destination [2]string `json:"destination"`
+	}{
+		Origin:      [2]string{"13.742310", "100.631418"},
+		Destination: [2]string{"13.754179", "200.630377"}, // <- Error. Cannot by > 180
+	}
+
+	mockUCase := new(mocks.Usecase)
+
+	j, err := json.Marshal(mockOrder)
+	assert.NoError(t, err)
+
+	//mockUCase.On("Store", mock.Anything, mock.AnythingOfType("*models.Order")).Return(nil)
+
+	e := echo.New()
+	req, err := http.NewRequest(echo.POST, "/orders", strings.NewReader(string(j)))
+	assert.NoError(t, err)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/orders")
+
+	handler := orderHttp.OrderHandler{
+		OUsecase: mockUCase,
+	}
+	err = handler.Store(c)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+	assert.JSONEq(t, `{"error":"given param is not valid"}`, rec.Body.String())
 	mockUCase.AssertExpectations(t)
 }
 

@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
-	"github.com/kodersky/golang-api-example/internal/app/api/order/delivery/http/helpers"
+	h "github.com/kodersky/golang-api-example/internal/app/api/order/delivery/http/helpers"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
@@ -19,20 +19,6 @@ type OrderHandler struct {
 	OUsecase order.Usecase
 }
 
-type ResponseError struct {
-	Message string `json:"error"`
-}
-
-type Pagination struct {
-	Page  int
-	Limit int
-}
-
-type OrderStruct struct {
-	Origin      [2]string `validate:"geo"`
-	Destination [2]string `validate:"geo"`
-}
-
 // NewOrderHandler will initialize the orders/ resources endpoint
 func NewOrderHandler(e *echo.Echo, ou order.Usecase) {
 	handler := &OrderHandler{
@@ -46,13 +32,13 @@ func NewOrderHandler(e *echo.Echo, ou order.Usecase) {
 // FetchOrder will fetch the orders based on given params
 func (o *OrderHandler) FetchOrder(c echo.Context) error {
 
-	var pagination Pagination
+	var pagination h.Pagination
 
 	// We could use also Validator.v9 for this
-	err := helpers.IsPaginationValid(&pagination, c.QueryParam("page"), c.QueryParam("limit"))
+	err := h.IsPaginationValid(&pagination, c.QueryParam("page"), c.QueryParam("limit"))
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(h.GetStatusCode(err), h.ResponseError{Message: err.Error()})
 	}
 
 	offset := pagination.Limit * (pagination.Page - 1)
@@ -65,7 +51,7 @@ func (o *OrderHandler) FetchOrder(c echo.Context) error {
 	listOr, err := o.OUsecase.Fetch(ctx, pagination.Limit, offset)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(h.GetStatusCode(err), h.ResponseError{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, listOr)
@@ -88,23 +74,23 @@ func (o *OrderHandler) Update(c echo.Context) error {
 
 	err := c.Bind(&s)
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(h.GetStatusCode(err), h.ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
 	if s.Status != "TAKEN" {
-		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, h.ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
 	or, err := o.OUsecase.GetByID(ctx, id)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(h.GetStatusCode(err), h.ResponseError{Message: err.Error()})
 	}
 
 	err = o.OUsecase.Update(ctx, or)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(h.GetStatusCode(err), h.ResponseError{Message: err.Error()})
 	}
 
 	logrus.Infof(fmt.Sprintf("Order %s status changed to %s", or.UUID, or.Status))
@@ -117,15 +103,15 @@ func (o *OrderHandler) Update(c echo.Context) error {
 // Store will store the order by given request body
 func (o *OrderHandler) Store(c echo.Context) error {
 	var or models.Order
-	var orderRequest OrderStruct
+	var orderRequest h.OrderStruct
 
 	err := c.Bind(&orderRequest)
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: models.ErrBadParamInput.Error()})
+		return c.JSON(http.StatusUnprocessableEntity, h.ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 
-	if ok, _ := helpers.IsOrderReqValid(&orderRequest); !ok {
-		return c.JSON(http.StatusUnprocessableEntity, ResponseError{Message: models.ErrBadParamInput.Error()})
+	if ok, _ := h.IsOrderReqValid(&orderRequest); !ok {
+		return c.JSON(http.StatusUnprocessableEntity, h.ResponseError{Message: models.ErrBadParamInput.Error()})
 	}
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -141,7 +127,7 @@ func (o *OrderHandler) Store(c echo.Context) error {
 	err = o.OUsecase.Store(ctx, &or)
 
 	if err != nil {
-		return c.JSON(helpers.GetStatusCode(err), ResponseError{Message: err.Error()})
+		return c.JSON(h.GetStatusCode(err), h.ResponseError{Message: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, or)
