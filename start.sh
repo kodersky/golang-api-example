@@ -1,0 +1,1 @@
+docker exec -it golang-api-example mysql -h "server-name" -u "root" "-pXXXXXXXX" "database-name" < "db.sql"

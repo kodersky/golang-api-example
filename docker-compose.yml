@@ -1,0 +1,69 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kodersky/golang-api-example
+    container_name: golang-api-example
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: golang
+      SERVICE_TAGS: dev
+      TERM: xterm-256color
+    volumes:
+      - ./:/go/src/github.com/kodersky/golang-api-example
+#      - orders:/var/socket
+    ports:
+      - 8081:8081
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+
+#  webserver:
+#    image: nginx:alpine
+#    container_name: golang-example-api-webserver
+#    restart: unless-stopped
+#    environment:
+#      SERVICE_NAME: nginx
+#      SERVICE_TAGS: dev
+#    tty: true
+#    ports:
+#      - "8080:80"
+#      - "8434:443"
+#    volumes:
+#      - ./nginx/conf.d/:/etc/nginx/conf.d/
+#      - orders-socket:/var/socket
+#    depends_on:
+#      - app
+#    networks:
+#      - app-network
+
+  db:
+    image: mysql:5.7
+    container_name: golang-example-api-db
+    restart: unless-stopped
+    tty: true
+    ports:
+        - "33306:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: pass
+        MYSQL_USER: root
+        MYSQL_DATABASE: orders
+        SERVICE_TAGS: dev
+        SERVICE_NAME: mysql
+    volumes:
+        - orders-db:/var/lib/mysql
+    networks:
+        - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  orders-db:
+#    orders-socket:
