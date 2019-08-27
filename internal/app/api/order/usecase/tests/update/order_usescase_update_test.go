@@ -15,11 +15,11 @@ import (
 
 func TestUpdate(t *testing.T) {
 	mockOrderRepo := new(mocks.Repository)
-	mockOrder := models.Order{
-		Status: 0,
-	}
 
 	t.Run("success", func(t *testing.T) {
+		mockOrder := models.Order{
+			Status: 0,
+		}
 		mockOrderRepo.On("Update", mock.Anything, &mockOrder).Once().Return(nil)
 
 		gm := tests.NewWithClient(tests.GoogleResponse, 0, nil)
@@ -31,6 +31,9 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("error-failed", func(t *testing.T) {
+		mockOrder := models.Order{
+			Status: 0,
+		}
 		mockOrderRepo.On("Update", mock.Anything, &mockOrder).Once().Return(errors.New("error"))
 
 		gm := tests.NewWithClient(tests.GoogleResponse, 0, nil)
