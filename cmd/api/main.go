@@ -17,7 +17,6 @@ import (
 	_orderUcase "github.com/kodersky/golang-api-example/internal/app/api/order/usecase"
 	"github.com/labstack/echo"
 
-	"context"
 	"github.com/spf13/viper"
 )
 
@@ -52,19 +51,19 @@ func main() {
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 	dbConn, err := sql.Open(`mysql`, dsn)
 
-	dbConn.SetMaxOpenConns(1)
-	dbConn.SetMaxIdleConns(1)
-
-	for {
-		ctx := context.Background()
-		ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
-		err := dbConn.PingContext(ctx)
-		if err != nil {
-			log.Println(err)
-		}
-		cancel()
-		time.Sleep(time.Second)
-	}
+	//dbConn.SetMaxOpenConns(1)
+	//dbConn.SetMaxIdleConns(1)
+	//
+	//for {
+	//	ctx := context.Background()
+	//	ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
+	//	err := dbConn.PingContext(ctx)
+	//	if err != nil {
+	//		log.Println(err)
+	//	}
+	//	cancel()
+	//	time.Sleep(time.Second)
+	//}
 
 	if err != nil && viper.GetBool("debug") {
 		log.Println(err)
