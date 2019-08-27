@@ -14,7 +14,7 @@ services:
       TERM: xterm-256color
       TZ: Asia/Bangkok
     ports:
-      - 8081:8081
+      - 8080:8080
     depends_on:
       - db
 
