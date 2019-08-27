@@ -22,14 +22,17 @@ import (
 
 func init() {
 	cwd, _ := os.Getwd()
-	viper.SetConfigFile(fmt.Sprintf("%s/config.yaml", cwd))
+	config := fmt.Sprintf("%s/config.yaml", cwd)
+
+	// For docker-compose
+	if _, err := os.Stat(fmt.Sprintf(config)); os.IsNotExist(err) {
+		config = fmt.Sprint("/opt/config.yaml")
+	}
+
+	viper.SetConfigFile(config)
 	err := viper.ReadInConfig()
 	if err != nil {
-		viper.SetConfigFile(fmt.Sprint("/opt/config.yaml"))
-		err := viper.ReadInConfig()
-		if err != nil {
-			panic(err)
-		}
+		panic(err)
 	}
 
 	if viper.GetBool(`debug`) {
@@ -47,23 +50,9 @@ func main() {
 	connection := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	val := url.Values{}
 	val.Add("parseTime", "1")
-	//val.Add("loc", "Asia/Bangkok")
+	val.Add("loc", "Local")
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
 	dbConn, err := sql.Open(`mysql`, dsn)
-
-	//dbConn.SetMaxOpenConns(1)
-	//dbConn.SetMaxIdleConns(1)
-	//
-	//for {
-	//	ctx := context.Background()
-	//	ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
-	//	err := dbConn.PingContext(ctx)
-	//	if err != nil {
-	//		log.Println(err)
-	//	}
-	//	cancel()
-	//	time.Sleep(time.Second)
-	//}
 
 	if err != nil && viper.GetBool("debug") {
 		log.Println(err)
@@ -82,9 +71,9 @@ func main() {
 
 	or := _orderRepo.NewMysqlOrderRepository(dbConn)
 
-	timeoutContext := time.Duration(viper.GetInt("timeout")) * time.Second
+	timeoutContext := time.Duration(viper.GetInt("context.timeout")) * time.Second
 
-	gm, err := maps.NewClient(maps.WithAPIKey(viper.GetString(`gmaps_apikey`)))
+	gm, err := maps.NewClient(maps.WithAPIKey(viper.GetString(`google_maps_api_key`)))
 
 	if err != nil {
 		log.Fatal(err)

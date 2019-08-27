@@ -9,13 +9,10 @@ USE `orders`;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
-DROP TABLE IF EXISTS `orders`;
-
 # Dump of table orders
 # ------------------------------------------------------------
 
-CREATE TABLE `orders` (
+CREATE TABLE IF NOT EXISTS `orders` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `distance` int(11) DEFAULT NULL,
   `status` tinyint(11) NOT NULL,

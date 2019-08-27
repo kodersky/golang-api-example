@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo"
 
@@ -45,7 +46,7 @@ func (o *OrderHandler) FetchOrder(c echo.Context) error {
 
 	ctx := c.Request().Context()
 	if ctx == nil {
-		ctx = context.Background()
+		ctx, _ = context.WithTimeout(context.Background(), time.Millisecond)
 	}
 
 	listOr, err := o.OUsecase.Fetch(ctx, pagination.Limit, offset)

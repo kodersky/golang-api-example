@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"googlemaps.github.io/maps"
@@ -97,7 +98,8 @@ func (o *orderUsecase) Store(c context.Context, m *models.Order) error {
 	}()
 
 	select {
-	case <-c2:
+	case err := <-c2:
+		log.Println(err)
 		return models.ErrInternalServerError
 	case res := <-c1:
 		if res == nil {

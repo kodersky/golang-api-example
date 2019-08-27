@@ -1,5 +1,5 @@
 hash: 82cb7f1fdd93d4878493ac54244941390f35eda72a012faa301df8c0b765429b
-updated: 2019-08-27T21:38:31.898608+07:00
+updated: 2019-08-27T23:55:10.430969+07:00
 imports:
 - name: github.com/davecgh/go-spew
   version: d8f796af33cc11cb798c1aaeb27a4ebc5099927d
@@ -86,7 +86,7 @@ imports:
   - acme
   - acme/autocert
 - name: golang.org/x/net
-  version: 74dc4d7220e7acc4e100824340f3e66577424772
+  version: ba9fcec4b297b415637633c5a6e8fa592e4a16c3
   subpackages:
   - idna
 - name: golang.org/x/sys

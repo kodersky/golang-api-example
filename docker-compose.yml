@@ -6,19 +6,17 @@ services:
       dockerfile: Dockerfile
     image: kodersky/golang-api-example
     container_name: golang-api-example
-    restart: unless-stopped
+    restart: on-failure
     tty: true
     environment:
       SERVICE_NAME: golang
       SERVICE_TAGS: dev
       TERM: xterm-256color
-    volumes:
-      - ./:/go/src/github.com/kodersky/golang-api-example
-#      - orders:/var/socket
+      TZ: Asia/Bangkok
     ports:
       - 8081:8081
-    networks:
-      - app-network
+#    networks:
+#      - app-network
     depends_on:
       - db
 
@@ -50,20 +48,23 @@ services:
     ports:
         - "33306:3306"
     environment:
-        MYSQL_ROOT_PASSWORD: pass
-        MYSQL_USER: root
-        MYSQL_DATABASE: orders
-        SERVICE_TAGS: dev
-        SERVICE_NAME: mysql
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: orders
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+      TZ: Asia/Bangkok
     volumes:
-        - orders-db:/var/lib/mysql
-    networks:
-        - app-network
+      - orders-db:/var/lib/mysql
+#    networks:
+#      - app-network
+#    healthcheck:
+#      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+#      timeout: 5s
+#      retries: 10
 
-networks:
-  app-network:
-    driver: bridge
+#networks:
+#  app-network:
 
 volumes:
   orders-db:
-#    orders-socket:

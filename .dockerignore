@@ -1,14 +1,7 @@
 .editorconfig
 .git
-AUTHORS.md
-CONTRIBUTING.md
-LICENSE
-Makefile
-NOTICE
 README.md
-arm/
-powerpc/
-mips/
 .vscode
 .idea
 vendor
+.env
