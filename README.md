@@ -14,23 +14,14 @@ as a templates.
 
 ## Testing
 
-Command `$ ./start.sh` will build small docker container with Nginx as a reverse
-proxy. `go` command is not available there.
+Command `$ ./start.sh` will build **small** docker container optimized for production, 
+thus `go` command is not available there.
 
-If you want to run `go` commands inside container like for example for testing 
-`docker exec -it golang-api-example go test  ./...` please use 
-`docker-compose-dev.yml` file.
+Please use Golang on your host machine.
 
-Run: 
-1. `$ docker-compose -f docker-compose-dev.yml build`
-2. `$ docker-compose -f docker-compose-dev.yml up`
+## Databasr
 
-Don't forget to run:
-
- `$ docker exec -i golang-example-api-db mysql -uroot -p"${password}" orders < db.sql` 
-
-if you haven't run it before.
-
+You can connect to DB from your host machine on port `33306`
 
 ## Troubleshoot:
 

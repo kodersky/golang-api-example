@@ -20,4 +20,7 @@ COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /go/src/github.com/kodersky/golang-api-example/main /usr/local/bin/main
 COPY --from=build /go/src/github.com/kodersky/golang-api-example/config.yaml /opt/config.yaml
+
+EXPOSE 8080
+
 ENTRYPOINT [ "/usr/local/bin/main" ]

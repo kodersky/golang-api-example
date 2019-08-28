@@ -13,6 +13,8 @@ services:
       SERVICE_TAGS: prod
       TERM: xterm-256color
       TZ: Asia/Bangkok
+    expose:
+      - 8080
     depends_on:
       - db
 
