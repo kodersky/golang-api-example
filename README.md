@@ -19,9 +19,9 @@ thus `go` command is not available there.
 
 Please use Golang on your host machine.
 
-## Databasr
+## Database
 
-You can connect to DB from your host machine on port `33306`
+You can connect to DB (MySQL) from your host machine on port `33306`
 
 ## Troubleshoot:
 
