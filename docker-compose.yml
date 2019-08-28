@@ -10,11 +10,9 @@ services:
     tty: true
     environment:
       SERVICE_NAME: golang
-      SERVICE_TAGS: dev
+      SERVICE_TAGS: prod
       TERM: xterm-256color
       TZ: Asia/Bangkok
-#    ports:
-#      - 8080:8080
     depends_on:
       - db
 
@@ -24,7 +22,7 @@ services:
     restart: unless-stopped
     environment:
       SERVICE_NAME: nginx
-      SERVICE_TAGS: dev
+      SERVICE_TAGS: prod
     tty: true
     ports:
       - "8080:80"
@@ -45,7 +43,7 @@ services:
       MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: orders
-      SERVICE_TAGS: dev
+      SERVICE_TAGS: prod
       SERVICE_NAME: mysql
       TZ: Asia/Bangkok
     volumes:
