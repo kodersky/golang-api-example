@@ -1,10 +1,10 @@
 --- # CHANGE FILE NAME TO config.yaml
 debug: true
 db:
-  name: "app"
+  name: "orders"
   user: "root"
   pass: "pass"
-  port: 33060
+  port: 3060
   host: "db"
 context:
   timeout: 2
