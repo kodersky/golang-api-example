@@ -29,6 +29,7 @@ func TestStore(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, mockOrder.ID, tempMockOrder.ID)
+		//assert.NotEqual(t, mockOrder.Distance, tempMockOrder.Distance) // Distance can be 0 so be careful
 		mockOrderRepo.AssertExpectations(t)
 	})
 	t.Run("coordinates-not-found", func(t *testing.T) {

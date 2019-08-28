@@ -39,7 +39,7 @@ fi
 
 container_id="golang-example-api-db"
 
-# It helps to avoid some kind of error. At least I hope so :)
+# Do not rush, honey:)
 sleep 2
 
 while ! docker exec "${container_id}" mysqladmin --user=root --password="${password}" --host "127.0.0.1" ping --silent &> /dev/null ; do
