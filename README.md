@@ -1,6 +1,6 @@
 # Rest API example in Golang. Dockerized.
 
-Specification [details](https://github.com/kodersky/golang-api-example/blob/master/specification.md).
+Specification [details](https://github.com/kodersky/golang-api-example/blob/master/specifcation.md).
 
 
 ## Usage
