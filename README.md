@@ -1,6 +1,6 @@
 # Rest API example in Golang. Dockerized.
 
-Specification [details](https://github.com/kodersky/golang-api-example/specification.md).
+Specification [details](https://github.com/kodersky/golang-api-example/blob/master/specification.md).
 
 
 ## Usage
@@ -15,7 +15,7 @@ as a templates.
 ## Testing
 
 Command `$ ./start.sh` will build **small** docker container optimized for production, 
-thus `go` command is not available there.
+therefore `go` command is not available there.
 
 Please use Golang on your host machine.
 
