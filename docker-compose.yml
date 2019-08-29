@@ -13,11 +13,12 @@ services:
       SERVICE_TAGS: prod
       TERM: xterm-256color
       TZ: Asia/Bangkok
+      WAIT_HOSTS: db:3306
     expose:
       - 8080
     depends_on:
       - db
-    command: sh -c '/go/src/github.com/kodersky/golang-api-example/wait-for-it.sh db:3306 -- /go/src/github.com/kodersky/golang-api-example/main'
+    command: sh -c '/wait && /go/src/github.com/kodersky/golang-api-example/main'
   webserver:
     image: nginx:alpine
     container_name: golang-api-example-webserver
