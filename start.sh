@@ -25,11 +25,11 @@ password=$MYSQL_ROOT_PASSWORD
 
 # Build and run containers. Transfer db schema
 
-docker-compose build
-if [ $? -ne 0 ]; then
-    echo "docker-compose build failed"
-    exit 1
-fi
+#docker-compose build
+#if [ $? -ne 0 ]; then
+#    echo "docker-compose build failed"
+#    exit 1
+#fi
 
 docker-compose up &
 if [ $? -ne 0 ]; then

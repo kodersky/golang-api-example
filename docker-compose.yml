@@ -17,8 +17,7 @@ services:
       - 8080
     depends_on:
       - db
-    command: ["/go/src/github.com/kodersky/golang-api-example/wait-for-it.sh", "db:3306", "--", "/go/src/github.com/kodersky/golang-api-example/main"]
-
+    command: sh -c './wait-for-it.sh db:3306 -- /go/src/github.com/kodersky/golang-api-example/main'
   webserver:
     image: nginx:alpine
     container_name: golang-api-example-webserver
